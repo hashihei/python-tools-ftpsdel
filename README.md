@@ -6,6 +6,7 @@ ftpsmdel
 ## Requirement
 * python 2.7.x or python3.x
 * ftplib
+* pytest
 
 ## Usage
 ...
