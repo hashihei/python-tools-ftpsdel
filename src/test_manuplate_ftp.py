@@ -17,31 +17,44 @@ def test_Output_Error_onlyMSG():
 
     assert session.Output_Error_onlyMSG('funcname','testmsg') == 0
 
-def test_Create_SessionFTPS(HOST, ACCOUNT, PASSWORD):
+def test_Create_SessionFTPS(cli_host, cli_account, cli_password):
     session = manuplate_ftp.ManuplateFTP()
 
-    print(HOST)
-    print(ACCOUNT)
-    Print(PASSWORD)
+    HOST = cli_host
+    ACCOUNT = cli_account
+    PASSWORD = cli_password
+
     assert session.Create_SessionFTPS(HOST,ACCOUNT,PASSWORD) == 0
     assert session.ftp_quit() == 0
 
-def test_ftp_cwd(HOST,ACCOUNT,PASSWORD):
+def test_ftp_cwd(cli_host, cli_account, cli_password):
     session = manuplate_ftp.ManuplateFTP()
+
+    HOST = cli_host
+    ACCOUNT = cli_account
+    PASSWORD = cli_password
 
     assert session.Create_SessionFTPS(HOST,ACCOUNT,PASSWORD) == 0
     assert session.ftp_cwd('/') == 0
     assert session.ftp_quit() == 0
 
-def test_ftp_nlst(HOST,ACCOUNT,PASSWORD):
+def test_ftp_nlst(cli_host, cli_account, cli_password):
     session = manuplate_ftp.ManuplateFTP()
+
+    HOST = cli_host
+    ACCOUNT = cli_account
+    PASSWORD = cli_password
 
     assert session.Create_SessionFTPS(HOST,ACCOUNT,PASSWORD) == 0
     assert session.ftp_nlst() is not None
     assert session.ftp_quit() == 0
 
-def test_ftp_delete(HOST,ACCOUNT,PASSWORD):
+def test_ftp_delete(cli_host, cli_account, cli_password):
     session = manuplate_ftp.ManuplateFTP()
+
+    HOST = cli_host
+    ACCOUNT = cli_account
+    PASSWORD = cli_password
 
     FILE_NAME = 'TESTFILE'
     assert session.Create_SessionFTPS(HOST,ACCOUNT,PASSWORD) == 0

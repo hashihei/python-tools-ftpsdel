@@ -140,12 +140,12 @@ if __name__ == '__main__':
                 logger_main.info('%s %s %s FTP login retry.', datetime.datetime.now(), sys._getframe().f_code.co_name, paths)
                 if session.Create_SessionFTPS(FTP_HOST,FTP_ACCOUNT,FTP_PASSWORD) < 0 :
                     logger_main.error('%s FTP Connection error.', datetime.datetime.now())
-                    sys.exit(1)
                 #set img root dir.
                 if session.ftp_cwd(FTP_DIR) < 0 :
                     logger_main.error('%s can not change directory to %s, exit program', datetime.datetime.now(),FTP_DIR)
-                    sys.exit(1) 
                 retry_count = retry_count - 1                
+
+        if retry_count == 0 : exit(1)                
 
     session.ftp_quit()
     logger_main.info('%s %s program end. ', datetime.datetime.now(), sys._getframe().f_code.co_name)

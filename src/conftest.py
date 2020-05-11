@@ -4,6 +4,11 @@
 #
 #
 
+#
+# import
+#
+import pytest
+
 def pytest_addoption(parser):
     """Add pytest command options."""
 
@@ -20,20 +25,24 @@ def pytest_addoption(parser):
         default="anonymous",
         help="set ftps username"
     )
-
     parser.addoption(
-        "--pass",
+        "--password",
         action="store",
-        default="",
+        default="password",
         help="set ftps password"
     )
 
-def pytest_generate_tests(metafunc):
-    if "HOST" in metafunc.fixturenames:
-        metafunc.parametrize("HOST",metafunc.config.getoption("--host"))
+@pytest.fixture
+def cli_host(request):
+    print(request.config.getoption('--host'))
+    return request.config.getoption('--host')
 
-    if "ACCOUNT" in metafunc.fixturenames:
-        metafunc.parametrize("ACCOUNT",metafunc.config.getoption("--account"))
+@pytest.fixture
+def cli_account(request):
+    print(request.config.getoption('--account'))
+    return request.config.getoption('--account')
 
-    if "PASSWORD" in metafunc.fixturenames:
-        metafunc.parametrize("PASSWORD",metafunc.config.getoption("--pass"))
+@pytest.fixture
+def cli_password(request):
+    print(request.config.getoption('--password'))
+    return request.config.getoption('--password')
