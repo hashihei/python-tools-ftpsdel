@@ -10,6 +10,7 @@
 # Import library
 #
 import ftplib
+import ssl
 import datetime
 import sys
 import logging
@@ -48,15 +49,17 @@ class ManuplateFTP:
 
     def Create_SessionFTPS(self, host, account, password,Mode_PASV="true"):
 
-        try:     
+        try:
+            ctx = ssl._create_stdlib_context(ssl.PROTOCOL_TLS)     
             #open connection.
-            self.ftp_session = ftplib.FTP_TLS(host)
-            #ftp mode.
-            self.ftp_session.set_pasv(Mode_PASV)
+            self.ftp_session = ftplib.FTP_TLS(host,context=ctx)
             #Login
             self.ftp_session.login(account,password)
-            #secure connection.
+            #ftp mode.
+            self.ftp_session.set_pasv(True)
+            #secure data connection.
             self.ftp_session.prot_p()
+            
             return 0
         except ftplib.error_reply as e:
             #unexpected response.

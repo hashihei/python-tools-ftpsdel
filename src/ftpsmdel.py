@@ -14,6 +14,7 @@ import sys
 
 # import orig library
 import manuplate_ftp
+import ftpdelconfig
 
 #
 # logging setting.
@@ -37,21 +38,34 @@ logger_main = logging.getLogger(__name__)
 #
 # FTP Server Info (FTPS)
 #
-FTP_HOST     = ''
-FTP_ACCOUNT  = ''
-FTP_PASSWORD = ''
-FTP_DIR      = ''
-FTP_DEL_LIST_FILE = ''
+FTP_HOST     = 'localhost'
+FTP_ACCOUNT  = 'anonymous'
+FTP_PASSWORD = 'anonymous'
+FTP_DIR      = '/'
+FTP_DEL_LIST_FILE = 'DEFAULTFILE'
 
 #
 # FTP delete file start index
 #
-FTP_DEL_START_INDEX = 27300
+FTP_DEL_START_INDEX = 0
 
 
 #
 # define for this program function. 
 #
+def get_auth_info(conf_path):
+
+    if conf_path is None:
+        HOST = ftpdelconfig.get_ftps_HOST()
+        ACCOUNT = ftpdelconfig.get_ftps_USER()
+        PASSWORD = ftpdelconfig.get_ftps_PASS()
+    else:
+        HOST = ftpdelconfig.get_ftps_HOST(conf_path)
+        ACCOUNT = ftpdelconfig.get_ftps_USER(conf_path)
+        PASSWORD = ftpdelconfig.get_ftps_PASS(conf_path)
+
+    return HOST, ACCOUNT, PASSWORD
+
 def get_ftp_delete_file_list(readfile):
     try:
         content_list = []
@@ -144,8 +158,7 @@ if __name__ == '__main__':
                 if session.ftp_cwd(FTP_DIR) < 0 :
                     logger_main.error('%s can not change directory to %s, exit program', datetime.datetime.now(),FTP_DIR)
                 retry_count = retry_count - 1                
-
-        if retry_count == 0 : exit(1)                
+                if retry_count < 0 : exit(1)   
 
     session.ftp_quit()
     logger_main.info('%s %s program end. ', datetime.datetime.now(), sys._getframe().f_code.co_name)

@@ -14,35 +14,12 @@ def pytest_addoption(parser):
 
     #RefURL: https://docs.python.org/3/library/argparse.html#the-add-argument-method
     parser.addoption(
-        "--host",
+        "--change-conf",
         action="store",
-        default="localhost",
-        help="set ftps server ip address"
-    )
-    parser.addoption(
-        "--account",
-        action="store",
-        default="anonymous",
-        help="set ftps username"
-    )
-    parser.addoption(
-        "--password",
-        action="store",
-        default="password",
-        help="set ftps password"
+        default="ftpdel.conf",
+        help="ftpdel setting file"
     )
 
 @pytest.fixture
-def cli_host(request):
-    print(request.config.getoption('--host'))
-    return request.config.getoption('--host')
-
-@pytest.fixture
-def cli_account(request):
-    print(request.config.getoption('--account'))
-    return request.config.getoption('--account')
-
-@pytest.fixture
-def cli_password(request):
-    print(request.config.getoption('--password'))
-    return request.config.getoption('--password')
+def cli_conf(request):
+    return request.config.getoption('--change-conf')
