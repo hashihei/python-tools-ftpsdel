@@ -13,7 +13,7 @@ import datetime
 import sys
 
 # import orig library
-import manuplate_ftp
+from manuplate_ftp import ManuplateFTP
 import ftpdelconfig
 
 #

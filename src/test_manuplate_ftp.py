@@ -76,13 +76,15 @@ def test_ftp_delete(cli_conf):
     ACCOUNT = ftpdelconfig.get_ftps_USER(cli_conf)
     PASSWORD = ftpdelconfig.get_ftps_PASS(cli_conf)
 
-    FILE_NAME = 'TESTFILE1'
+    FILE_NAME = 'TESTFILE1.txt'
+    TEST_FILE_PATH = 'img/goods/'
+
     assert session.Create_SessionFTPS(HOST,ACCOUNT,PASSWORD) == 0
-    assert session.ftp_cwd('/img/goods') == 0
+    assert session.ftp_cwd('/') == 0
     with open(FILE_NAME, 'rb') as f:
-        session.ftp_session.storbinary('STOR ' + FILE_NAME, f)
-    # assert session.ftp_nlst(FILE_NAME) is not None
-    # assert session.ftp_delete(FILE_NAME) == 0
-    # assert session.ftp_quit() == 0
+        session.ftp_session.storbinary('STOR /img/goods/TESTFILE1.txt', f)
+    assert session.ftp_nlst(FILE_NAME) is not None
+    assert session.ftp_delete(FILE_NAME) == 0
+    assert session.ftp_quit() == 0
 
 
