@@ -131,6 +131,6 @@ dmypy.json
 #original
 test_ftpdel.conf
 ftplog.txt
-
+.vscode
 
 
