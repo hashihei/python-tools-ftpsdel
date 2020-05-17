@@ -1,1 +1,4 @@
-/img/goods
+/img
+/img/PNG
+/img/JPG
+/img/GIF

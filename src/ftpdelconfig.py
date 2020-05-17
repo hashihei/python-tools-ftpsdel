@@ -12,17 +12,19 @@
 import configparser
 import datetime
 import sys
+import os
 import logging
 import traceback
 
 SECTION1 = 'ftps'
 SECTION2 = 'system'
-DEFAULT_CONF_PATH = '../etc/ftpdel.conf'
+FOLDER_SIG = os.path.sep
+DEFAULT_CONF_PATH = '..' + FOLDER_SIG + 'etc' + FOLDER_SIG + 'ftpdel.conf'
 
 #
 # define for config read function.
 #
-def get_config_value(conf_path,get_value):
+def get_config_value(conf_path,get_value,SECTION=SECTION1):
 
     #read config.
     config = configparser.ConfigParser()
@@ -31,9 +33,9 @@ def get_config_value(conf_path,get_value):
     return_value = None
 
     #check section and option value.
-    if config.has_section(SECTION1):
-        if config.has_option(SECTION1, get_value):
-            return_value = config.get(SECTION1, get_value)
+    if config.has_section(SECTION):
+        if config.has_option(SECTION, get_value):
+            return_value = config.get(SECTION, get_value)
 
     return return_value
     
@@ -79,3 +81,17 @@ def get_ftps_FTP_DEL_LIST_FILE(conf_path=DEFAULT_CONF_PATH):
     get_value = 'FTP_DEL_LIST_FILE'
 
     return get_config_value(conf_path, get_value)
+
+def get_LOG_FILE(conf_path=DEFAULT_CONF_PATH):
+
+    #setting get value
+    get_value = 'LOGFILE'
+
+    return get_config_value(conf_path, get_value,SECTION2)
+
+def get_LOG_LEVEL(conf_path=DEFAULT_CONF_PATH):
+
+    #setting get value
+    get_value = 'LOGLEVEL'
+
+    return get_config_value(conf_path, get_value,SECTION2)

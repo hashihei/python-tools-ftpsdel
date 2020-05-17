@@ -80,9 +80,6 @@ def test_ftp_delete(cli_conf):
     TEST_FILE_PATH = 'img/goods/'
 
     assert session.Create_SessionFTPS(HOST,ACCOUNT,PASSWORD) == 0
-    assert session.ftp_cwd('/') == 0
-    with open(FILE_NAME, 'rb') as f:
-        session.ftp_session.storbinary('STOR /img/goods/TESTFILE1.txt', f)
     assert session.ftp_nlst(FILE_NAME) is not None
     assert session.ftp_delete(FILE_NAME) == 0
     assert session.ftp_quit() == 0

@@ -11,44 +11,49 @@
 #
 import datetime
 import sys
+import os
+from pathlib import Path
+import logging
+import traceback
+import argparse
 
-# import orig library
-from manuplate_ftp import ManuplateFTP
-import ftpdelconfig
+# import orig Class and Functions
+from src.manuplate_ftp import ManuplateFTP
+from src import ftpdelconfig
 
 #
 # logging setting.
 #
-import logging
-import traceback
-LOGGING_FILE = "ftplog.txt"
-logging.basicConfig(filename=LOGGING_FILE, level=logging.DEBUG)
+LOGGING_FILE = ""
 
-#console output message level is info.
-#default(file) message level is debug.
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
 
-#main module logger
-logger_main = logging.getLogger(__name__)
+#WorkDir
+WORKDIR = str(Path.cwd())
+FOLDER_SIG = os.path.sep
 
 #
-# FTP Server Info (FTPS)
+# Add command arg.
 #
-FTP_HOST     = 'localhost'
-FTP_ACCOUNT  = 'anonymous'
-FTP_PASSWORD = 'anonymous'
-FTP_DIR      = '/'
-FTP_DEL_LIST_FILE = 'DEFAULTFILE'
+parser = argparse.ArgumentParser()
+parser.add_argument("--start_index", type=int, help="(int) file delete restart index. (optional)")
+parser.add_argument("--config_file", type=str, help="(str) config file fully path. (optional)")
+args = parser.parse_args()
 
 #
 # FTP delete file start index
 #
-FTP_DEL_START_INDEX = 0
+if args.start_index is None:
+    FTP_DEL_START_INDEX = 0
+else:
+    FTP_DEL_START_INDEX = int(args.start_index)
 
+#
+# FTPS Conf file
+#
+if args.config_file is None:
+    CONFIG_FILE = WORKDIR + FOLDER_SIG + 'etc' + FOLDER_SIG + 'ftpdel.conf'
+else:
+    CONFIG_FILE = str(args.config_file)
 
 #
 # define for this program function. 
@@ -66,34 +71,32 @@ def get_auth_info(conf_path):
 
     return HOST, ACCOUNT, PASSWORD
 
-def get_ftp_delete_file_list(readfile):
+def get_ftp_delete_list(conf_path):
+    if conf_path is None:
+        DEL_LIST_DIR = ftpdelconfig.get_ftps_FTP_DEL_LIST_DIR()
+        DEL_LIST_FILE = ftpdelconfig.get_ftps_FTP_DEL_LIST_FILE()
+    else:
+        DEL_LIST_DIR = ftpdelconfig.get_ftps_FTP_DEL_LIST_DIR(conf_path)
+        DEL_LIST_FILE = ftpdelconfig.get_ftps_FTP_DEL_LIST_FILE(conf_path)
+
+    return DEL_LIST_DIR, DEL_LIST_FILE
+
+def get_ftp_delete_file_list(FTP_DEL_LIST_DIRS,FTP_DEL_LIST_FILES):
     try:
         content_list = []
-        for line in open(readfile,'r',encoding="utf-8_sig"):
-            line = line.replace('\n','')
-            line = line[:-3]
-            content_list.append(line)
 
-        #delete duplicate data.        
-        content_list = sorted(set(content_list), key=content_list.index)
+        for line_dir in open(FTP_DEL_LIST_DIRS,'r',encoding='utf-8_sig'):
+            if line_dir == '':
+                pass
+            elif line_dir[-1:] != '/':
+                line_dir = line_dir + '/'
+            for line_files in open(FTP_DEL_LIST_FILES,'r',encoding="utf-8_sig"):
+                line_dir = line_dir.replace('\n','')
+                line_files = line_files.replace('\n','')
+
+                content_list.append(line_dir + line_files)
 
         return content_list
-    except Exception as e:
-        logger_main.error('%s %s %s', datetime.datetime.now(), sys._getframe().f_code.co_name, e)
-        return None
-
-def modify_delete_file_name(content_list):
-    try:
-        delete_file_name = []
-        for fname in content_list:
-            for i in range(1,43,1):
-                delete_file_name.append(str(i) + '/' + fname)
-            delete_file_name.append('C' + '/' + fname)
-            delete_file_name.append('D' + '/' + fname)
-            delete_file_name.append('L' + '/' + fname)
-            delete_file_name.append('S' + '/' + fname)
-
-        return delete_file_name
     except Exception as e:
         logger_main.error('%s %s %s', datetime.datetime.now(), sys._getframe().f_code.co_name, e)
         return None
@@ -101,19 +104,46 @@ def modify_delete_file_name(content_list):
 
 if __name__ == '__main__':
 
+    #
     #logging
+    #
+    LOGGING_FILE = ftpdelconfig.get_LOG_FILE(CONFIG_FILE)
+    LOGGING_LEVEL = ftpdelconfig.get_LOG_LEVEL(CONFIG_FILE)
+
+    logging.basicConfig(filename=LOGGING_FILE, level=logging.DEBUG)
+    #console output message level is info.
+    #default(file) message level is debug.
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(name)-20s: %(levelname)-8s %(message)s')
+    console.setFormatter(formatter)
+    logging.getLogger('').addHandler(console)
+
+    #main module logger
+    logger_main = logging.getLogger(__name__)
+
+
     logger_main.info('%s program start.', datetime.datetime.now())
 
-    #get file candidate list
-    delete_contents = get_ftp_delete_file_list(FTP_DEL_LIST_FILE)
-    delete_contents = modify_delete_file_name(delete_contents)
-    logger_main.info('%s program delete file list up finish.' % datetime.datetime.now())
+    #load setting
+    FTP_HOST,FTP_ACCOUNT,FTP_PASSWORD = get_auth_info(CONFIG_FILE)
+    FTP_DIR = ftpdelconfig.get_ftps_FTP_LOGIN_DIR(CONFIG_FILE)
 
+    #get file candidate list
+    FTP_DEL_LIST_DIR, FTP_DEL_LIST_FILE = get_ftp_delete_list(CONFIG_FILE)
+    FTP_DEL_LIST_DIR = WORKDIR + FOLDER_SIG + FTP_DEL_LIST_DIR
+    FTP_DEL_LIST_FILE = WORKDIR + FOLDER_SIG + FTP_DEL_LIST_FILE
+
+
+    delete_contents = get_ftp_delete_file_list(FTP_DEL_LIST_DIR,FTP_DEL_LIST_FILE)
+
+    logger_main.info('%s program delete file list up finish.' % datetime.datetime.now())
 
     #make ftp class
     session = ManuplateFTP()
+
     #connect ftpserver
-    if session.Create_SessionFTPS(FTP_HOST,FTP_ACCOUNT,FTP_PASSWORD) < 0 :
+    if session.Create_SessionFTPS(FTP_HOST,FTP_ACCOUNT,FTP_PASSWORD,True) < 0 :
         logger_main.error('%s FTP Connection error.', datetime.datetime.now())
         sys.exit(1)
 
@@ -130,8 +160,9 @@ if __name__ == '__main__':
         if i < FTP_DEL_START_INDEX:
             #ftps delete skip.
             continue
+        #IF FTPS fail then retry 3 times.
         retry_count = 3
-        while retry_count > 0:
+        while retry_count >= 0:
             if (i % 100 == 0):
                 logger_main.info('%s %s file delete progress %s percent. (%d / %d)', datetime.datetime.now(), sys._getframe().f_code.co_name, str(round((i/count)*100,2)),i,count)
 
@@ -146,7 +177,8 @@ if __name__ == '__main__':
                         logger_main.error('%s %s %s delete failed.', datetime.datetime.now(), sys._getframe().f_code.co_name, f)
                     else:
                         logger_main.info('%s %s %s deleted.', datetime.datetime.now(), sys._getframe().f_code.co_name, f)
-                retry_count = 0
+                #no retry. next list.
+                retry_count = -1
             else:
                 logger_main.info('%s %s %s delete failed. (file not found or aborted.)', datetime.datetime.now(), sys._getframe().f_code.co_name, paths)
                 session.ftp_quit()
@@ -158,7 +190,8 @@ if __name__ == '__main__':
                 if session.ftp_cwd(FTP_DIR) < 0 :
                     logger_main.error('%s can not change directory to %s, exit program', datetime.datetime.now(),FTP_DIR)
                 retry_count = retry_count - 1                
-                if retry_count < 0 : exit(1)   
+                if retry_count < 0 :
+                    exit(1)   
 
     session.ftp_quit()
     logger_main.info('%s %s program end. ', datetime.datetime.now(), sys._getframe().f_code.co_name)

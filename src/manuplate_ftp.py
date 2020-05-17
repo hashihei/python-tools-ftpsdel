@@ -19,13 +19,18 @@ import traceback
 #
 # define for FTP Class
 #
-class ManuplateFTP:
+class ManuplateFTP():
     ftp_session = None
+    _org_makeport = None
+    port = 0
+    host = ""
 
     def __init__(self):
         #define class logger
         self.logger = logging.getLogger('ManuplateFTP.Class')
         self.ftp_session = None
+        self._org_makeport = None
+
 
     def Output_Error(self,Function_Name,e):
         try:
@@ -47,16 +52,26 @@ class ManuplateFTP:
             return -1 
 
 
-    def Create_SessionFTPS(self, host, account, password,Mode_PASV="true"):
+    def Create_SessionFTPS(self, host, account, password,Mode_PASV="true",PORT=21):
 
         try:
-            ctx = ssl._create_stdlib_context(ssl.PROTOCOL_TLS)     
+            #save host,port
+            self.port = PORT
+            self.host = host
+
+            #create context use TLS v1.2
+            ctx = ssl._create_stdlib_context(ssl.PROTOCOL_TLSv1_2)    
+            
             #open connection.
             self.ftp_session = ftplib.FTP_TLS(host,context=ctx)
+
+            #for debug
+            #self.ftp_session.set_debuglevel(2)
+
             #Login
             self.ftp_session.login(account,password)
             #ftp mode.
-            self.ftp_session.set_pasv(True)
+            self.ftp_session.set_pasv(Mode_PASV)
             #secure data connection.
             self.ftp_session.prot_p()
             
@@ -120,6 +135,21 @@ class ManuplateFTP:
                 #error.
                 self.Output_Error_onlyMSG(sys._getframe().f_code.co_name, return_code)
                 return -1
+        except Exception as e:
+            #Other error.
+            self.Output_Error(sys._getframe().f_code.co_name, e)
+            return -1  
+
+    def ftp_put(self,Local_File_Name,Remote_File_Name=''):
+
+        try:
+            if Remote_File_Name == '' :
+                Remote_File_Name = Local_File_Name
+            self.ftp_session.storbinary("STOR " + Remote_File_Name, open(Local_File_Name, "rb"))
+            return 0
+        except IOError as e:
+            self.Output_Error(sys._getframe().f_code.co_name, e)
+            return -1
         except Exception as e:
             #Other error.
             self.Output_Error(sys._getframe().f_code.co_name, e)
