@@ -76,8 +76,9 @@ def test_ftp_delete(cli_conf):
     ACCOUNT = ftpdelconfig.get_ftps_USER(cli_conf)
     PASSWORD = ftpdelconfig.get_ftps_PASS(cli_conf)
 
+    #edit exist file name
     FILE_NAME = 'TESTFILE1.txt'
-    TEST_FILE_PATH = 'img/goods/'
+    TEST_FILE_PATH = '/img/'
 
     assert session.Create_SessionFTPS(HOST,ACCOUNT,PASSWORD) == 0
     assert session.ftp_nlst(FILE_NAME) is not None
