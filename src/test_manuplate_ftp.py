@@ -81,8 +81,8 @@ def test_ftp_delete(cli_conf):
     TEST_FILE_PATH = '/img/'
 
     assert session.Create_SessionFTPS(HOST,ACCOUNT,PASSWORD) == 0
-    assert session.ftp_nlst(FILE_NAME) is not None
-    assert session.ftp_delete(FILE_NAME) == 0
+    assert session.ftp_nlst(TEST_FILE_PATH + FILE_NAME) is not None
+    assert session.ftp_delete(TEST_FILE_PATH + FILE_NAME) == 0
     assert session.ftp_quit() == 0
 
 
