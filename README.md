@@ -10,8 +10,8 @@ ftpsmdel
 * pytest (test only)
 
 ## Usage
--[]Windows Install (Use PowerShell)
-    - git clone https://github.com/hashihei/python-tools-ftpsdel.git
+- Windows Install (Use PowerShell)
+    * git clone https://github.com/hashihei/python-tools-ftpsdel.git
 
 -[]Configure
     - etc/ftpdel.conf
