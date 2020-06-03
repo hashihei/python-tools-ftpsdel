@@ -6,7 +6,7 @@ ftpsmdel
 
 ## Requirement
 * python python3.x
-    -[]動作確認バージョンWindows(python 3.8.1)
+    * 動作確認バージョンWindows(python 3.8.1)
 * pytest (test only)
 
 ## Usage
