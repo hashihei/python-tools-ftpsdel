@@ -34,7 +34,7 @@ class ManuplateFTP():
 
     def Output_Error(self,Function_Name,e):
         try:
-            self.logger.info('%s %s %s', datetime.datetime.now(), sys._getframe().f_code.co_name, e.args)
+            self.logger.info('%s %s %s %s', datetime.datetime.now(), Function_Name, sys._getframe().f_code.co_name, e.args)
             return 0
         except Exception as e:
             self.logger.info('%s %s %s', datetime.datetime.now(), sys._getframe().f_code.co_name, e.args)
@@ -43,7 +43,7 @@ class ManuplateFTP():
 
     def Output_Error_onlyMSG(self,Function_Name,msg):
         try:
-            self.logger.info('%s %s %s', datetime.datetime.now(), sys._getframe().f_code.co_name, msg)
+            self.logger.info('%s %s %s %s', datetime.datetime.now(), Function_Name, sys._getframe().f_code.co_name, msg)
             return 0
         except Exception as e:
             #Other error.
